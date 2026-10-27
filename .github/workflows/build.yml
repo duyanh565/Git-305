@@ -1,0 +1,44 @@
+name: Build Unsigned IPA
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tim va Build Unsigned IPA
+        run: |
+          for z in *.zip; do
+            [ -f "$z" ] && unzip -q -o "$z"
+          done
+
+          PROJ_PATH=$(find . -name "*.xcodeproj" -not -path "*/__MACOSX/*" | head -n 1)
+          if [ -z "$PROJ_PATH" ]; then
+            echo "Loi: Khong tim thay file .xcodeproj!"
+            ls -la
+            exit 1
+          fi
+
+          WORK_DIR=$(dirname "$PROJ_PATH")
+          PROJ_NAME=$(basename "$PROJ_PATH")
+          cd "$WORK_DIR"
+
+          xcodebuild clean build \
+            -project "$PROJ_NAME" \
+            -alltargets \
+            -sdk iphoneos \
+            -configuration Release \
+            SYMROOT="$PWD/build" \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+          mkdir -p Payload
+          APP_PATH=$(find build -name "*.app" | head -n 1)
+          cp -r "$APP_PATH" Payload/
+          zip -r -9 App-Unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: File-IPA-Da-Ma-Hoa
+          path: "**/*.ipa"

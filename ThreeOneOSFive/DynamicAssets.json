@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "icon.locket",
+      "kind": "icon",
+      "fileName": "locket.jpg",
+      "url": "https://i.ibb.co/pBcZv1RX/IMG-8870.jpg",
+      "sha256": null,
+      "targetIdentifier": "system-locket",
+      "enabled": true
+    }
+  ]
+}
